@@ -260,6 +260,41 @@ this.registerInterval(
 - Settings not persisting: ensure `loadData`/`saveData` are awaited and you re-render the UI after changes.
 - Mobile-only issues: confirm you're not using desktop-only APIs; check `isDesktopOnly` and adjust.
 
+## Workflow & commit conventions
+
+Work one YouTrack ticket at a time. Read the ticket before starting.
+
+### Commits
+
+- **One logical change per commit.** Never bundle unrelated changes. If a commit touches two concerns, split it into two.
+- Stage only the files that belong to the change. Avoid `git add -A` when the working tree holds stray edits.
+- Use [Conventional Commits](https://www.conventionalcommits.org/): `<type>[scope]: <description>`. Types: `feat`, `fix`, `build`, `chore`, `ci`, `docs`, `refactor`, `style`, `test`, `perf`, `revert`.
+- Write the subject in imperative mood, present tense, under 72 chars: "add Biome formatter", not "added" or "adds".
+- Don't be robotic. Add a body when the change needs context. Skip it when the subject line carries the whole story.
+- Reference the ticket in the footer when relevant: `Refs ENC-1`.
+- Never commit secrets (`.env`, tokens). If a commit fails a hook, fix the problem and make a new commit; do not amend.
+
+### Commit message voice
+
+Apply the `stop-slop` skill to every commit message and to prose in docs, tickets, and the README:
+- Cut filler, throat-clearing openers, and adverbs.
+- Active voice. Name the actor doing the work.
+- Specific over vague. No dramatic pull-quote one-liners, no em dashes.
+- Trust the reader. State the fact, skip the hand-holding.
+
+### Toolchain
+
+- **npm** is the package manager. Keep `package-lock.json` committed; use `npm ci` in CI.
+- **Biome** owns formatting (`npm run format`). **ESLint** + `eslint-plugin-obsidianmd` owns linting (`npm run lint`). Keep them out of each other's lane.
+- Before pushing, the full chain must pass: `npm run format && npm run lint && npm run typecheck && npm run build`.
+- Lefthook runs format + lint + typecheck on pre-commit and build on pre-push. Do not bypass hooks with `--no-verify`.
+
+### Segmenting work
+
+- Scaffolding (deps, config, CI) and source changes are separate commits.
+- Identity changes (`manifest.json`, `package.json` name) stand alone.
+- Group a dependency install, its config, and the code that uses them in one commit only when the result at HEAD is non-broken. Otherwise split.
+
 ## References
 
 - Obsidian sample plugin: https://github.com/obsidianmd/obsidian-sample-plugin
