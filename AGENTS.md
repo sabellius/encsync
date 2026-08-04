@@ -264,6 +264,16 @@ this.registerInterval(
 
 Work one YouTrack ticket at a time. Read the ticket before starting.
 
+### Branching
+
+GitFlow-lite. One branch per ticket, merged back to `main` via PR.
+
+- Branch from `main`: `feature/ENC-<n>-<slug>` for features, `fix/ENC-<n>-<slug>` for bugs. Example: `feature/ENC-1-biome-formatter`.
+- Keep the slug short, lowercase, hyphen-separated.
+- Do all ticket work on the branch; commit in meaningful segments (see Commits).
+- Push the branch and open a PR against `main`. Squash-merge on approval.
+- Never commit ticket work straight to `main`. Meta/config changes (AGENTS.md, CI) may go on `main` directly.
+
 ### Commits
 
 - **One logical change per commit.** Never bundle unrelated changes. If a commit touches two concerns, split it into two.
