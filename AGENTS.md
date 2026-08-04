@@ -9,34 +9,32 @@
 ## Environment & tooling
 
 - Node.js: use current LTS (Node 18+ recommended).
-- **Package manager: npm** (required for this sample - `package.json` defines npm scripts and dependencies).
-- **Bundler: esbuild** (required for this sample - `esbuild.config.mjs` and build scripts depend on it). Alternative bundlers like Rollup or webpack are acceptable for other projects if they bundle all external dependencies into `main.js`.
+- **Package manager: pnpm**. Use pnpm for every dependency install and script run. If a task genuinely cannot be done with pnpm, stop and ask the user before falling back to npm or yarn.
+- **Bundler: esbuild** (`esbuild.config.mjs`). Alternative bundlers like Rollup or webpack are acceptable for other projects if they bundle all external dependencies into `main.js`.
 - Types: `obsidian` type definitions.
-
-**Note**: This sample project has specific technical dependencies on npm and esbuild. If you're creating a plugin from scratch, you can choose different tools, but you'll need to replace the build configuration accordingly.
 
 ### Install
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Dev (watch)
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ### Production build
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ## Linting
 
 - ESLint is preconfigured with `eslint-plugin-obsidianmd` for Obsidian-specific rules.
-- Run `npm run lint` to lint the project.
+- Run `pnpm lint` to lint the project.
 - A GitHub Action automatically lints every commit on all branches.
 
 ## File & folder conventions
@@ -294,9 +292,9 @@ Apply the `stop-slop` skill to every commit message and to prose in docs, ticket
 
 ### Toolchain
 
-- **npm** is the package manager. Keep `package-lock.json` committed; use `npm ci` in CI.
-- **Biome** owns formatting (`npm run format`). **ESLint** + `eslint-plugin-obsidianmd` owns linting (`npm run lint`). Keep them out of each other's lane.
-- Before pushing, the full chain must pass: `npm run format && npm run lint && npm run typecheck && npm run build`.
+- **pnpm** is the package manager. Keep `pnpm-lock.yaml` committed; use `pnpm install --frozen-lockfile` in CI. Never introduce a `package-lock.json` or `yarn.lock`.
+- **Biome** owns formatting (`pnpm format`). **ESLint** + `eslint-plugin-obsidianmd` owns linting (`pnpm lint`). Keep them out of each other's lane.
+- Before pushing, the full chain must pass: `pnpm format && pnpm lint && pnpm typecheck && pnpm build`.
 - Lefthook runs format + lint + typecheck on pre-commit and build on pre-push. Do not bypass hooks with `--no-verify`.
 
 ### Segmenting work
