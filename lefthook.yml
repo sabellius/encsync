@@ -1,0 +1,12 @@
+# Commands go through pnpm exec so they resolve the project's node_modules/.bin
+# (Lefthook runs hooks via sh -c, which does not put .bin on PATH).
+pre-commit:
+  jobs:
+    - name: biome-format
+      glob: "*.{js,ts,jsx,tsx,mjs,mts,cjs,cts,json,jsonc,css}"
+      run: pnpm exec biome format {staged_files}
+    - name: eslint
+      glob: "*.{js,ts,jsx,tsx,mjs,mts,cjs,cts}"
+      run: pnpm exec eslint {staged_files}
+    - name: typecheck
+      run: pnpm typecheck
