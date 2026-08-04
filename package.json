@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -noEmit -skipLibCheck",
     "format": "biome format --write",
-    "format:check": "biome format"
+    "format:check": "biome format",
+    "prepare": "lefthook install"
   },
   "keywords": [],
   "license": "0-BSD",
@@ -25,6 +26,7 @@
     "eslint-plugin-obsidianmd": "^0.4.0",
     "globals": "^17.6.0",
     "jiti": "^2.6.1",
+    "lefthook": "^2.1.10",
     "obsidian": "latest",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.59.1"
