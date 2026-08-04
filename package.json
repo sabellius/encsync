@@ -1,7 +1,7 @@
 {
-  "name": "obsidian-sample-plugin",
-  "version": "1.0.0",
-  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+  "name": "encsync",
+  "version": "0.1.0",
+  "description": "Sync your vault to your own cloud storage with end-to-end encryption.",
   "main": "main.js",
   "type": "module",
   "packageManager": "pnpm@11.18.0",
@@ -15,8 +15,21 @@
     "format:check": "biome format",
     "prepare": "lefthook install"
   },
-  "keywords": [],
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "sync",
+    "encryption",
+    "end-to-end-encryption",
+    "pcloud"
+  ],
   "license": "0-BSD",
+  "author": "Saveliy Shiryaev",
+  "homepage": "https://github.com/sabellius/encsync",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sabellius/encsync.git"
+  },
   "devDependencies": {
     "@biomejs/biome": "2.5.6",
     "@eslint/js": "^9.39.4",
