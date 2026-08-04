@@ -264,12 +264,19 @@ Work one YouTrack ticket at a time. Read the ticket before starting.
 
 ### Branching
 
-GitFlow-lite. One branch per ticket, merged back to `main` via PR.
+GitFlow (avh-style). One branch per ticket, merged back to `main` locally. No PRs.
 
 - Branch from `main`: `feature/ENC-<n>-<slug>` for features, `fix/ENC-<n>-<slug>` for bugs. Example: `feature/ENC-1-biome-formatter`.
 - Keep the slug short, lowercase, hyphen-separated.
 - Do all ticket work on the branch; commit in meaningful segments (see Commits).
-- Push the branch and open a PR against `main`. Squash-merge on approval.
+- Finish a ticket with a local `--no-ff` merge into `main`, then delete the branch (local and remote) and push `main`:
+    ```bash
+    git checkout main
+    git merge --no-ff feature/ENC-<n>-<slug>
+    git branch -d feature/ENC-<n>-<slug>
+    git push origin --delete feature/ENC-<n>-<slug>
+    git push origin main
+    ```
 - Never commit ticket work straight to `main`. Meta/config changes (AGENTS.md, CI) may go on `main` directly.
 
 ### Commits
