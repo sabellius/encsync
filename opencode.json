@@ -11,16 +11,7 @@
   "formatter": {
     "biome": {
       "command": ["pnpm", "exec", "biome", "check", "--write", "$FILE"],
-      "extensions": [
-        ".js",
-        ".jsx",
-        ".ts",
-        ".tsx",
-        ".json",
-        ".css",
-        ".md",
-        ".mdx"
-      ]
+      "extensions": [".js", ".jsx", ".ts", ".tsx", ".json", ".css", ".md", ".mdx"]
     }
   }
 }
