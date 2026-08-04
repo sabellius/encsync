@@ -9,34 +9,32 @@
 ## Environment & tooling
 
 - Node.js: use current LTS (Node 18+ recommended).
-- **Package manager: npm** (required for this sample - `package.json` defines npm scripts and dependencies).
-- **Bundler: esbuild** (required for this sample - `esbuild.config.mjs` and build scripts depend on it). Alternative bundlers like Rollup or webpack are acceptable for other projects if they bundle all external dependencies into `main.js`.
+- **Package manager: pnpm**. Use pnpm for every dependency install and script run. If a task genuinely cannot be done with pnpm, stop and ask the user before falling back to npm or yarn.
+- **Bundler: esbuild** (`esbuild.config.mjs`). Alternative bundlers like Rollup or webpack are acceptable for other projects if they bundle all external dependencies into `main.js`.
 - Types: `obsidian` type definitions.
-
-**Note**: This sample project has specific technical dependencies on npm and esbuild. If you're creating a plugin from scratch, you can choose different tools, but you'll need to replace the build configuration accordingly.
 
 ### Install
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Dev (watch)
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ### Production build
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ## Linting
 
 - ESLint is preconfigured with `eslint-plugin-obsidianmd` for Obsidian-specific rules.
-- Run `npm run lint` to lint the project.
+- Run `pnpm lint` to lint the project.
 - A GitHub Action automatically lints every commit on all branches.
 
 ## File & folder conventions
@@ -259,6 +257,51 @@ this.registerInterval(
 - Commands not appearing: verify `addCommand` runs after `onload` and IDs are unique.
 - Settings not persisting: ensure `loadData`/`saveData` are awaited and you re-render the UI after changes.
 - Mobile-only issues: confirm you're not using desktop-only APIs; check `isDesktopOnly` and adjust.
+
+## Workflow & commit conventions
+
+Work one YouTrack ticket at a time. Read the ticket before starting.
+
+### Branching
+
+GitFlow-lite. One branch per ticket, merged back to `main` via PR.
+
+- Branch from `main`: `feature/ENC-<n>-<slug>` for features, `fix/ENC-<n>-<slug>` for bugs. Example: `feature/ENC-1-biome-formatter`.
+- Keep the slug short, lowercase, hyphen-separated.
+- Do all ticket work on the branch; commit in meaningful segments (see Commits).
+- Push the branch and open a PR against `main`. Squash-merge on approval.
+- Never commit ticket work straight to `main`. Meta/config changes (AGENTS.md, CI) may go on `main` directly.
+
+### Commits
+
+- **One logical change per commit.** Never bundle unrelated changes. If a commit touches two concerns, split it into two.
+- Stage only the files that belong to the change. Avoid `git add -A` when the working tree holds stray edits.
+- Use [Conventional Commits](https://www.conventionalcommits.org/): `<type>[scope]: <description>`. Types: `feat`, `fix`, `build`, `chore`, `ci`, `docs`, `refactor`, `style`, `test`, `perf`, `revert`.
+- Write the subject in imperative mood, present tense, under 72 chars: "add Biome formatter", not "added" or "adds".
+- Don't be robotic. Add a body when the change needs context. Skip it when the subject line carries the whole story.
+- Reference the ticket in the footer when relevant: `Refs ENC-1`.
+- Never commit secrets (`.env`, tokens). If a commit fails a hook, fix the problem and make a new commit; do not amend.
+
+### Commit message voice
+
+Apply the `stop-slop` skill to every commit message and to prose in docs, tickets, and the README:
+- Cut filler, throat-clearing openers, and adverbs.
+- Active voice. Name the actor doing the work.
+- Specific over vague. No dramatic pull-quote one-liners, no em dashes.
+- Trust the reader. State the fact, skip the hand-holding.
+
+### Toolchain
+
+- **pnpm** is the package manager. Keep `pnpm-lock.yaml` committed; use `pnpm install --frozen-lockfile` in CI. Never introduce a `package-lock.json` or `yarn.lock`.
+- **Biome** owns formatting (`pnpm format`). **ESLint** + `eslint-plugin-obsidianmd` owns linting (`pnpm lint`). Keep them out of each other's lane.
+- Before pushing, the full chain must pass: `pnpm format && pnpm lint && pnpm typecheck && pnpm build`.
+- Lefthook runs format + lint + typecheck on pre-commit and build on pre-push. Do not bypass hooks with `--no-verify`.
+
+### Segmenting work
+
+- Scaffolding (deps, config, CI) and source changes are separate commits.
+- Identity changes (`manifest.json`, `package.json` name) stand alone.
+- Group a dependency install, its config, and the code that uses them in one commit only when the result at HEAD is non-broken. Otherwise split.
 
 ## References
 
