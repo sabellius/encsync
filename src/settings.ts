@@ -1,18 +1,18 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import MyPlugin from "./main";
+import EncSyncPlugin from "./main";
 
-export interface MyPluginSettings {
+export interface EncSyncSettings {
   mySetting: string;
 }
 
-export const DEFAULT_SETTINGS: MyPluginSettings = {
+export const DEFAULT_SETTINGS: EncSyncSettings = {
   mySetting: "default",
 };
 
-export class SampleSettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+export class EncSyncSettingTab extends PluginSettingTab {
+  plugin: EncSyncPlugin;
 
-  constructor(app: App, plugin: MyPlugin) {
+  constructor(app: App, plugin: EncSyncPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
