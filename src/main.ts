@@ -1,5 +1,6 @@
 import { Plugin } from "obsidian";
-import { DEFAULT_SETTINGS, EncSyncSettings, EncSyncSettingTab } from "./settings";
+import { EncSyncSettingTab } from "./settings";
+import { DEFAULT_SETTINGS, EncSyncSettings } from "./types";
 
 export default class EncSyncPlugin extends Plugin {
   settings!: EncSyncSettings;

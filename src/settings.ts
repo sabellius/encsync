@@ -1,13 +1,5 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, PluginSettingTab } from "obsidian";
 import EncSyncPlugin from "./main";
-
-export interface EncSyncSettings {
-  mySetting: string;
-}
-
-export const DEFAULT_SETTINGS: EncSyncSettings = {
-  mySetting: "default",
-};
 
 export class EncSyncSettingTab extends PluginSettingTab {
   plugin: EncSyncPlugin;
@@ -19,20 +11,6 @@ export class EncSyncSettingTab extends PluginSettingTab {
 
   display(): void {
     const { containerEl } = this;
-
     containerEl.empty();
-
-    new Setting(containerEl)
-      .setName("Settings #1")
-      .setDesc("It's a secret")
-      .addText((text) =>
-        text
-          .setPlaceholder("Enter your secret")
-          .setValue(this.plugin.settings.mySetting)
-          .onChange(async (value) => {
-            this.plugin.settings.mySetting = value;
-            await this.plugin.saveSettings();
-          }),
-      );
   }
 }
