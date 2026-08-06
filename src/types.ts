@@ -1,4 +1,4 @@
-export type ProviderKind = "pcloud";
+export type ProviderKind = "pcloud" | "webdav";
 
 export interface PCloudConfig {
   accessToken: string;
@@ -7,9 +7,17 @@ export interface PCloudConfig {
   rootPath: string;
 }
 
+export interface WebDavConfig {
+  server: string;
+  username: string;
+  password: string;
+  rootPath: string;
+}
+
 export interface EncSyncSettings {
   provider: ProviderKind;
   pcloud: PCloudConfig | null;
+  webdav: WebDavConfig | null;
   encryptionPassword: string;
   autoSyncIntervalMs: number;
   syncOnSaveDelayMs: number;
@@ -18,8 +26,9 @@ export interface EncSyncSettings {
 }
 
 export const DEFAULT_SETTINGS: EncSyncSettings = {
-  provider: "pcloud",
+  provider: "webdav",
   pcloud: null,
+  webdav: null,
   encryptionPassword: "",
   autoSyncIntervalMs: 5 * 60 * 1000,
   syncOnSaveDelayMs: 5 * 1000,
