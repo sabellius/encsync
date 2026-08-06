@@ -77,6 +77,17 @@ export class WebDavProvider implements SyncProvider {
     }
   }
 
+  private hrefPrefix(): string {
+    let serverPath: string;
+    try {
+      serverPath = new URL(this.cfg.server).pathname;
+    } catch {
+      serverPath = this.cfg.server;
+    }
+    const root = this.cfg.rootPath.replace(/^\/+|\/+$/g, "");
+    return `${serverPath.replace(/\/+$/, "")}/${root}`.replace(/\/+$/, "");
+  }
+
   private relativePath(href: string): string | null {
     let h = href.trim();
     if (h.startsWith("http://") || h.startsWith("https://")) {
@@ -86,9 +97,9 @@ export class WebDavProvider implements SyncProvider {
         return null;
       }
     }
-    const root = this.cfg.rootPath.replace(/\/+$/, "");
-    if (!h.startsWith(`${root}/`) && h !== root) return null;
-    let rel = h.slice(root.length).replace(/^\/+/, "");
+    const prefix = this.hrefPrefix();
+    if (!h.startsWith(`${prefix}/`) && h !== prefix) return null;
+    let rel = h.slice(prefix.length).replace(/^\/+/, "");
     try {
       rel = decodeURIComponent(rel);
     } catch {
