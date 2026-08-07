@@ -1,6 +1,21 @@
 import { type RequestUrlResponse, requestUrl } from "obsidian";
-import type { ProviderKind, WebDavConfig } from "../types";
+import type { ProviderKind } from "../types";
 import { ProviderError, type RemoteEntity, type SyncProvider } from "./base";
+
+export interface WebDavConfig {
+  server: string;
+  username: string;
+  password: string;
+  rootPath: string;
+}
+
+export function blankWebDavConfig(): WebDavConfig {
+  return { server: "", username: "", password: "", rootPath: "/EncSync" };
+}
+
+export function isWebDavConfigured(config: WebDavConfig | null): boolean {
+  return !!config && config.server.trim() !== "" && config.username.trim() !== "";
+}
 
 const PROPFIND_BODY = `<?xml version="1.0" encoding="utf-8" ?>
 <D:propfind xmlns:D="DAV:">

@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import EncSyncPlugin from "./main";
-import { blankWebDavConfig, type WebDavConfig } from "./types";
+import { blankWebDavConfig, type WebDavConfig } from "./providers/webdav";
 
 export class EncSyncSettingTab extends PluginSettingTab {
   plugin: EncSyncPlugin;

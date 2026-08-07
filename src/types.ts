@@ -1,26 +1,7 @@
+import type { PCloudConfig } from "./providers/pcloud";
+import type { WebDavConfig } from "./providers/webdav";
+
 export type ProviderKind = "pcloud" | "webdav";
-
-export interface PCloudConfig {
-  accessToken: string;
-  locationId: 1 | 2;
-  hostname: string;
-  rootPath: string;
-}
-
-export interface WebDavConfig {
-  server: string;
-  username: string;
-  password: string;
-  rootPath: string;
-}
-
-export function blankWebDavConfig(): WebDavConfig {
-  return { server: "", username: "", password: "", rootPath: "/EncSync" };
-}
-
-export function isWebDavConfigured(config: WebDavConfig | null): boolean {
-  return !!config && config.server.trim() !== "" && config.username.trim() !== "";
-}
 
 export interface EncSyncSettings {
   provider: ProviderKind;
@@ -33,14 +14,18 @@ export interface EncSyncSettings {
   ignorePaths: string[];
 }
 
+const DEFAULT_AUTO_SYNC_INTERVAL_MS = 5 * 60 * 1000;
+const DEFAULT_SYNC_ON_SAVE_DELAY_MS = 5 * 1000;
+const DEFAULT_DELETION_GUARD_PERCENT = 20;
+
 export const DEFAULT_SETTINGS: EncSyncSettings = {
   provider: "webdav",
   pcloud: null,
   webdav: null,
   encryptionPassword: "",
-  autoSyncIntervalMs: 5 * 60 * 1000,
-  syncOnSaveDelayMs: 5 * 1000,
-  deletionGuardPct: 20,
+  autoSyncIntervalMs: DEFAULT_AUTO_SYNC_INTERVAL_MS,
+  syncOnSaveDelayMs: DEFAULT_SYNC_ON_SAVE_DELAY_MS,
+  deletionGuardPct: DEFAULT_DELETION_GUARD_PERCENT,
   ignorePaths: [],
 };
 
