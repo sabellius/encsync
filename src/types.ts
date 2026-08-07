@@ -2,7 +2,7 @@ export type ProviderKind = "pcloud" | "webdav";
 
 export interface PCloudConfig {
   accessToken: string;
-  locationid: 1 | 2;
+  locationId: 1 | 2;
   hostname: string;
   rootPath: string;
 }
@@ -12,6 +12,14 @@ export interface WebDavConfig {
   username: string;
   password: string;
   rootPath: string;
+}
+
+export function blankWebDavConfig(): WebDavConfig {
+  return { server: "", username: "", password: "", rootPath: "/EncSync" };
+}
+
+export function isWebDavConfigured(config: WebDavConfig | null): boolean {
+  return !!config && config.server.trim() !== "" && config.username.trim() !== "";
 }
 
 export interface EncSyncSettings {

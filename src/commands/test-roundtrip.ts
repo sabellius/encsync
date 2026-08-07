@@ -3,10 +3,11 @@ import { CryptoLayer } from "../crypto/encrypt";
 import type EncSyncPlugin from "../main";
 import { createProvider } from "../providers";
 import { ProviderError } from "../providers/base";
+import { isWebDavConfigured } from "../types";
 
 export async function runTestRoundTrip(plugin: EncSyncPlugin): Promise<void> {
-  const s = plugin.settings;
-  if (!s.webdav || !s.webdav.server || !s.webdav.username || !s.encryptionPassword) {
+  const settings = plugin.settings;
+  if (!isWebDavConfigured(settings.webdav) || !settings.encryptionPassword) {
     new Notice(
       "EncSync: set WebDAV server, username, password, and the encryption password first.",
     );
@@ -19,14 +20,14 @@ export async function runTestRoundTrip(plugin: EncSyncPlugin): Promise<void> {
     return;
   }
 
-  const provider = createProvider(s);
+  const provider = createProvider(settings);
   if (!provider) {
     new Notice("EncSync: no provider configured.");
     return;
   }
 
   try {
-    const crypto = new CryptoLayer(s.encryptionPassword);
+    const crypto = new CryptoLayer(settings.encryptionPassword);
 
     await provider.mkdir("");
     const content = await plugin.app.vault.read(file);
@@ -36,7 +37,7 @@ export async function runTestRoundTrip(plugin: EncSyncPlugin): Promise<void> {
 
     await provider.writeFile(encPath, ciphertext);
     const listing = await provider.walk();
-    const found = listing.some((e) => e.path === encPath);
+    const found = listing.some((entry) => entry.path === encPath);
     const downloaded = await provider.readFile(encPath);
     const roundtrip = new TextDecoder().decode(await crypto.decryptData(downloaded));
     const decryptOk = roundtrip === content;
@@ -45,9 +46,11 @@ export async function runTestRoundTrip(plugin: EncSyncPlugin): Promise<void> {
       `EncSync round-trip ${found && decryptOk ? "OK" : "FAILED"}: ${plaintext.byteLength}B → ${ciphertext.byteLength}B encrypted; remote entries: ${listing.length}; decrypt match: ${decryptOk}`,
       10000,
     );
-  } catch (e) {
-    const msg =
-      e instanceof ProviderError ? `${e.kind}: ${e.message}` : ((e as Error).message ?? String(e));
-    new Notice(`EncSync error: ${msg}`, 10000);
+  } catch (error) {
+    const message =
+      error instanceof ProviderError
+        ? `${error.kind}: ${error.message}`
+        : ((error as Error).message ?? String(error));
+    new Notice(`EncSync error: ${message}`, 10000);
   }
 }
