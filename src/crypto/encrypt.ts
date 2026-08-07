@@ -7,36 +7,27 @@ import {
 const SALT = "encsync-v1";
 
 export class CryptoLayer {
-  private readonly cipher: Cipher;
-  private keyed = false;
+  private constructor(private readonly cipher: Cipher) {}
 
-  constructor(private readonly password: string) {
-    this.cipher = new Cipher("base32");
+  static async create(password: string): Promise<CryptoLayer> {
+    const cipher = new Cipher("base32");
+    await cipher.key(password, SALT);
+    return new CryptoLayer(cipher);
   }
 
-  private async ensureKeyed(): Promise<void> {
-    if (this.keyed) return;
-    await this.cipher.key(this.password, SALT);
-    this.keyed = true;
-  }
-
-  async encryptName(vaultPath: string): Promise<string> {
-    await this.ensureKeyed();
+  encryptPath(vaultPath: string): Promise<string> {
     return this.cipher.encryptFileName(vaultPath);
   }
 
-  async decryptName(encPath: string): Promise<string> {
-    await this.ensureKeyed();
+  decryptPath(encPath: string): Promise<string> {
     return this.cipher.decryptFileName(encPath);
   }
 
-  async encryptData(plaintext: Uint8Array): Promise<Uint8Array> {
-    await this.ensureKeyed();
+  encryptData(plaintext: Uint8Array): Promise<Uint8Array> {
     return this.cipher.encryptData(plaintext, undefined);
   }
 
-  async decryptData(ciphertext: Uint8Array): Promise<Uint8Array> {
-    await this.ensureKeyed();
+  decryptData(ciphertext: Uint8Array): Promise<Uint8Array> {
     return this.cipher.decryptData(ciphertext);
   }
 
