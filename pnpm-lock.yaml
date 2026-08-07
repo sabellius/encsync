@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@fyears/rclone-crypt':
+        specifier: ^0.0.7
+        version: 0.0.7
     devDependencies:
       '@biomejs/biome':
         specifier: 2.5.6
@@ -308,6 +312,12 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@fyears/eme@0.0.3':
+    resolution: {integrity: sha512-DOiTLGdNHBaR+SONltsJSRzbHvD0HgndrO2eOL+gOMOsOCNtyIo8e/OgmIXP0AHRw1gescmXl2xn/xK9H2gpZA==}
+
+  '@fyears/rclone-crypt@0.0.7':
+    resolution: {integrity: sha512-WHdoBtiKUdgNoyjJz//2cpldBpp9FjkHv4weUDIGdUZW6oMQq/hDiDjz3ICKuK5i5kXuVdYmaoruVpnRcHtwMw==}
+
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
     engines: {node: '>=18.18.0'}
@@ -340,6 +350,13 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       eslint: ^9
+
+  '@noble/ciphers@0.5.3':
+    resolution: {integrity: sha512-B0+6IIHiqEs3BPMT0hcRmHvEj2QHOLu+uwt+tqDDeVd0oyVzh7BPrDcPjRnV1PV/5LaknXJJQvOuRGR0zQJz+w==}
+
+  '@noble/hashes@1.8.0':
+    resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
+    engines: {node: ^14.21.3 || >=16}
 
   '@pkgr/core@0.1.2':
     resolution: {integrity: sha512-fdDH1LSGfZdTH2sxdpVMw31BanV28K/Gry0cVFxaNP77neJSkd82mM8ErPNYs9e+0O7SdHBLTDzDgwUuy18RnQ==}
@@ -500,6 +517,9 @@ packages:
   balanced-match@4.0.4:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
+
+  base32768@3.0.1:
+    resolution: {integrity: sha512-dNGY49X0IKN1kDl9y/6sii1Vced+f+4uAqOeRz/PshjNdPwSD+ntnHOg/YgDbLSZetp94d/XxGdpfbXDKv8BVQ==}
 
   brace-expansion@1.1.18:
     resolution: {integrity: sha512-Edep/X9fGqVNmzKBVsDYIOtD+z1tuezV70LBjdCst9Tqu76lsnvRiZ6oTic1n+/BIwX6QDGAO94PN4N2SADvtw==}
@@ -1262,6 +1282,9 @@ packages:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
 
+  pkcs7-padding@0.1.1:
+    resolution: {integrity: sha512-tM/sUOL5FdH7x6gSLHTNDFi1bAut/EXGFp/Ih8uRkVd2IdXwb5QWnxBgQXn6buadj1pLi3CYKCnrxb+XoTz+Ww==}
+
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
@@ -1311,6 +1334,9 @@ packages:
   ret@0.1.15:
     resolution: {integrity: sha512-TTlYpa+OL+vMMNG24xSlQGEJ3B/RzEfUlLct7b5G/ytav+wPrplCpVMFuwzXbkecJrb6IYo1iFb0S9v37754mg==}
     engines: {node: '>=0.12'}
+
+  rfc4648@1.5.4:
+    resolution: {integrity: sha512-rRg/6Lb+IGfJqO05HZkN50UtY7K/JhxJag1kP23+zyMfrvoB0B7RWv06MbOzoc79RgCdNTiUaNsTT1AJZ7Z+cg==}
 
   safe-array-concat@1.1.4:
     resolution: {integrity: sha512-wtZlHyOje6OZTGqAoaDKxFkgRtkF9CnHAVnCHKfuj200wAgL+bSJhdsCD2l0Qx/2ekEXjPWcyKkfGb5CPboslg==}
@@ -1724,6 +1750,19 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
+  '@fyears/eme@0.0.3':
+    dependencies:
+      '@noble/ciphers': 0.5.3
+
+  '@fyears/rclone-crypt@0.0.7':
+    dependencies:
+      '@fyears/eme': 0.0.3
+      '@noble/ciphers': 0.5.3
+      '@noble/hashes': 1.8.0
+      base32768: 3.0.1
+      pkcs7-padding: 0.1.1
+      rfc4648: 1.5.4
+
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -1750,6 +1789,10 @@ snapshots:
       eslint-plugin-n: 17.10.3(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))
       eslint-plugin-react: 7.37.3(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))
       eslint-plugin-security: 1.4.0
+
+  '@noble/ciphers@0.5.3': {}
+
+  '@noble/hashes@1.8.0': {}
 
   '@pkgr/core@0.1.2': {}
 
@@ -2014,6 +2057,8 @@ snapshots:
   balanced-match@1.0.2: {}
 
   balanced-match@4.0.4: {}
+
+  base32768@3.0.1: {}
 
   brace-expansion@1.1.18:
     dependencies:
@@ -2981,6 +3026,8 @@ snapshots:
 
   picomatch@4.0.5: {}
 
+  pkcs7-padding@0.1.1: {}
+
   possible-typed-array-names@1.1.0: {}
 
   prelude-ls@1.2.1: {}
@@ -3033,6 +3080,8 @@ snapshots:
       supports-preserve-symlinks-flag: 1.0.0
 
   ret@0.1.15: {}
+
+  rfc4648@1.5.4: {}
 
   safe-array-concat@1.1.4:
     dependencies:
