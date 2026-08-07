@@ -11,11 +11,13 @@ export type ProviderErrorKind = "not-found" | "auth" | "network" | "server" | "u
 
 export class ProviderError extends Error {
   readonly kind: ProviderErrorKind;
+  readonly status?: number;
 
-  constructor(kind: ProviderErrorKind, message?: string) {
+  constructor(kind: ProviderErrorKind, message?: string, status?: number) {
     super(message ?? kind);
     this.name = "ProviderError";
     this.kind = kind;
+    this.status = status;
   }
 }
 
@@ -30,4 +32,5 @@ export interface SyncProvider {
   writeFile(path: string, data: Uint8Array): Promise<RemoteEntity>;
   mkdir(path: string): Promise<void>;
   rm(path: string): Promise<void>;
+  ensureRoot(): Promise<void>;
 }

@@ -1,16 +1,14 @@
 import { Notice, TFile } from "obsidian";
 import { CryptoLayer } from "../crypto/encrypt";
 import type EncSyncPlugin from "../main";
-import { createProvider } from "../providers";
+import { createProvider, getProviderReadinessError } from "../providers";
 import { ProviderError } from "../providers/base";
-import { isWebDavConfigured } from "../types";
 
 export async function runTestRoundTrip(plugin: EncSyncPlugin): Promise<void> {
   const settings = plugin.settings;
-  if (!isWebDavConfigured(settings.webdav) || !settings.encryptionPassword) {
-    new Notice(
-      "EncSync: set WebDAV server, username, password, and the encryption password first.",
-    );
+  const readinessError = getProviderReadinessError(settings);
+  if (readinessError || !settings.encryptionPassword) {
+    new Notice(`EncSync: ${readinessError ?? "set the encryption password"} first.`);
     return;
   }
 
@@ -29,7 +27,7 @@ export async function runTestRoundTrip(plugin: EncSyncPlugin): Promise<void> {
   try {
     const crypto = new CryptoLayer(settings.encryptionPassword);
 
-    await provider.mkdir("");
+    await provider.ensureRoot();
     const content = await plugin.app.vault.read(file);
     const plaintext = new TextEncoder().encode(content);
     const encPath = await crypto.encryptPath(file.path);

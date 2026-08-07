@@ -71,10 +71,11 @@ export class WebDavProvider implements SyncProvider {
     } catch (error) {
       const status = (error as { status?: number }).status ?? 0;
       const where = `${options.method} ${relPath}`;
-      if (status === 404) throw new ProviderError("not-found", `404 ${where}`);
-      if (status === 401 || status === 403) throw new ProviderError("auth", `${status} ${where}`);
-      if (status >= 500) throw new ProviderError("server", `${status} ${where}`);
-      if (status > 0) throw new ProviderError("unknown", `${status} ${where}`);
+      if (status === 404) throw new ProviderError("not-found", `404 ${where}`, status);
+      if (status === 401 || status === 403)
+        throw new ProviderError("auth", `${status} ${where}`, status);
+      if (status >= 500) throw new ProviderError("server", `${status} ${where}`, status);
+      if (status > 0) throw new ProviderError("unknown", `${status} ${where}`, status);
       throw new ProviderError("network", `${where}: ${(error as Error).message ?? error}`);
     }
   }
@@ -189,15 +190,13 @@ export class WebDavProvider implements SyncProvider {
     try {
       await this.request(relPath, { method: "MKCOL" });
     } catch (error) {
-      const message = (error as Error).message ?? "";
-      if (
-        error instanceof ProviderError &&
-        (error.kind === "unknown" || error.kind === "not-found") &&
-        /40[59]/.test(message)
-      )
-        return;
+      if (error instanceof ProviderError && (error.status === 405 || error.status === 409)) return;
       throw error;
     }
+  }
+
+  async ensureRoot(): Promise<void> {
+    await this.mkdir("");
   }
 
   async rm(relPath: string): Promise<void> {
