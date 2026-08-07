@@ -1,6 +1,13 @@
 import { type RequestUrlResponse, requestUrl } from "obsidian";
 import type { ProviderKind } from "../types";
 import { ProviderError, type RemoteEntity, type SyncProvider } from "./base";
+import {
+  base64Utf8,
+  childByLocal,
+  descendantsByLocal,
+  localName,
+  toArrayBuffer,
+} from "./webdav-utils";
 
 export interface WebDavConfig {
   server: string;
@@ -25,36 +32,6 @@ const PROPFIND_BODY = `<?xml version="1.0" encoding="utf-8" ?>
     <D:getlastmodified/>
   </D:prop>
 </D:propfind>`;
-
-function base64Utf8(text: string): string {
-  const bytes = new TextEncoder().encode(text);
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary);
-}
-
-function localName(element: Element): string {
-  return element.localName || element.tagName.replace(/^.*:/, "");
-}
-
-function childByLocal(parent: Element, name: string): Element | null {
-  for (const element of Array.from(parent.children)) {
-    if (localName(element) === name) return element;
-  }
-  return null;
-}
-
-function descendantsByLocal(parent: Element | Document, name: string): Element[] {
-  return Array.from(parent.getElementsByTagName("*")).filter(
-    (element) => localName(element) === name,
-  );
-}
-
-function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  const buffer = new ArrayBuffer(bytes.byteLength);
-  new Uint8Array(buffer).set(bytes);
-  return buffer;
-}
 
 export class WebDavProvider implements SyncProvider {
   readonly kind: ProviderKind = "webdav";
