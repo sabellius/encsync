@@ -143,12 +143,14 @@ export class WebDavProvider implements SyncProvider {
       const sizeEnc = lengthElement?.textContent
         ? Number.parseInt(lengthElement.textContent, 10)
         : 0;
-      const mtimeSvr = modifiedElement?.textContent ? Date.parse(modifiedElement.textContent) : 0;
+      const mtimeServer = modifiedElement?.textContent
+        ? Date.parse(modifiedElement.textContent)
+        : 0;
       entries.push({
         path: relative,
         type: isFolder ? "folder" : "file",
         sizeEnc: isFolder ? 0 : sizeEnc,
-        mtimeSvr,
+        mtimeServer,
       });
     }
     return entries;

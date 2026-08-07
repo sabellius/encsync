@@ -4,7 +4,7 @@ export interface RemoteEntity {
   path: string;
   type: "file" | "folder";
   sizeEnc: number;
-  mtimeSvr: number;
+  mtimeServer: number;
 }
 
 export type ProviderErrorKind = "not-found" | "auth" | "network" | "server" | "unknown";

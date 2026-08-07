@@ -32,8 +32,8 @@ export const DEFAULT_SETTINGS: EncSyncSettings = {
 export interface FileBaselineEntry {
   type: "file";
   key: string;
-  mtimeCli: number;
-  mtimeSvr: number;
+  mtimeClient: number;
+  mtimeServer: number;
   size: number;
   sizeEnc: number;
   hash: string;
@@ -42,8 +42,8 @@ export interface FileBaselineEntry {
 export interface FolderBaselineEntry {
   type: "folder";
   key: string;
-  mtimeCli: number;
-  mtimeSvr: number;
+  mtimeClient: number;
+  mtimeServer: number;
 }
 
 export type BaselineEntry = FileBaselineEntry | FolderBaselineEntry;
