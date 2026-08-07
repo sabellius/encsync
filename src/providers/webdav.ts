@@ -1,13 +1,7 @@
 import { type RequestUrlResponse, requestUrl } from "obsidian";
 import type { ProviderKind } from "../types";
 import { ProviderError, type RemoteEntity, type SyncProvider } from "./base";
-import {
-  base64Utf8,
-  childByLocal,
-  descendantsByLocal,
-  localName,
-  toArrayBuffer,
-} from "./webdav-utils";
+import { base64Utf8, childByLocal, descendantsByLocal, toArrayBuffer } from "./webdav-utils";
 
 export interface WebDavConfig {
   server: string;
