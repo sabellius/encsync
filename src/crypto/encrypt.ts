@@ -20,12 +20,12 @@ export class CryptoLayer {
     this.keyed = true;
   }
 
-  async encryptName(vaultPath: string): Promise<string> {
+  async encryptPath(vaultPath: string): Promise<string> {
     await this.ensureKeyed();
     return this.cipher.encryptFileName(vaultPath);
   }
 
-  async decryptName(encPath: string): Promise<string> {
+  async decryptPath(encPath: string): Promise<string> {
     await this.ensureKeyed();
     return this.cipher.decryptFileName(encPath);
   }

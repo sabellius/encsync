@@ -58,13 +58,13 @@ export default class EncSyncPlugin extends Plugin {
       await provider.mkdir("");
       const content = await this.app.vault.read(file);
       const plaintext = new TextEncoder().encode(content);
-      const encName = await crypto.encryptName(file.path);
+      const encPath = await crypto.encryptPath(file.path);
       const ciphertext = await crypto.encryptData(plaintext);
 
-      await provider.writeFile(encName, ciphertext);
+      await provider.writeFile(encPath, ciphertext);
       const listing = await provider.walk();
-      const found = listing.some((e) => e.path === encName);
-      const downloaded = await provider.readFile(encName);
+      const found = listing.some((e) => e.path === encPath);
+      const downloaded = await provider.readFile(encPath);
       const roundtrip = new TextDecoder().decode(await crypto.decryptData(downloaded));
       const decryptOk = roundtrip === content;
 
