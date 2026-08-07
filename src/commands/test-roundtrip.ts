@@ -25,7 +25,7 @@ export async function runTestRoundTrip(plugin: EncSyncPlugin): Promise<void> {
   }
 
   try {
-    const crypto = new CryptoLayer(settings.encryptionPassword);
+    const crypto = await CryptoLayer.create(settings.encryptionPassword);
 
     await provider.ensureRoot();
     const content = await plugin.app.vault.read(file);
