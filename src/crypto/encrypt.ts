@@ -3,6 +3,8 @@ import {
   decryptedSize as rcloneDecryptedSize,
   encryptedSize as rcloneEncryptedSize,
 } from "@fyears/rclone-crypt";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { bytesToHex } from "@noble/hashes/utils.js";
 
 const SALT = "encsync-v1";
 
@@ -29,6 +31,10 @@ export class CryptoLayer {
 
   decryptData(ciphertext: Uint8Array): Promise<Uint8Array> {
     return this.cipher.decryptData(ciphertext);
+  }
+
+  hash(plaintext: Uint8Array): string {
+    return bytesToHex(sha256(plaintext));
   }
 
   encryptedSize(plaintextSize: number): number {
