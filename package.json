@@ -45,6 +45,7 @@
     "typescript-eslint": "^8.59.1"
   },
   "dependencies": {
-    "@fyears/rclone-crypt": "^0.0.7"
+    "@fyears/rclone-crypt": "^0.0.7",
+    "@noble/hashes": "^2.3.0"
   }
 }
