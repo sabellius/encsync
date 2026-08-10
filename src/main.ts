@@ -1,9 +1,15 @@
 import { Notice, type ObsidianProtocolData, Plugin } from "obsidian";
 import { registerCommands } from "./commands";
 import { CryptoLayer } from "./crypto/encrypt";
-import { defaultKoofrConfig, KOOFR_AUTH_URL, KOOFR_SCOPE } from "./providers/koofr";
+import {
+  DEFAULT_KOOFR_CLIENT_ID,
+  defaultKoofrConfig,
+  KOOFR_AUTH_URL,
+  KOOFR_SCOPE,
+} from "./providers/koofr";
 import { buildAuthorizeUrl, generateState } from "./providers/oauth";
 import {
+  DEFAULT_PCLOUD_CLIENT_ID,
   defaultPCloudConfig,
   PCLOUD_AUTH_URL,
   PCLOUD_SCOPE,
@@ -87,19 +93,16 @@ export default class EncSyncPlugin extends Plugin {
       authUrl = KOOFR_AUTH_URL;
       scope = KOOFR_SCOPE;
       if (!this.settings.koofr) this.settings.koofr = defaultKoofrConfig();
-      clientId = this.settings.koofr.clientId;
+      clientId = this.settings.koofr.clientId || DEFAULT_KOOFR_CLIENT_ID;
     } else {
       authUrl = PCLOUD_AUTH_URL;
       scope = PCLOUD_SCOPE;
       if (!this.settings.pcloud) this.settings.pcloud = defaultPCloudConfig();
-      clientId = this.settings.pcloud.clientId;
+      clientId = this.settings.pcloud.clientId || DEFAULT_PCLOUD_CLIENT_ID;
     }
 
     const url = buildAuthorizeUrl({ authUrl, clientId, scope, state });
-    const opened = window.open(url);
-    if (!opened) {
-      new Notice(`EncSync: could not open browser. Copy this URL:\n${url}`, 30000);
-    }
+    window.open(url);
   }
 
   private async handleOAuthCallback(params: ObsidianProtocolData): Promise<void> {
