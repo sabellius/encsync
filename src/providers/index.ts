@@ -1,5 +1,6 @@
 import type { EncSyncSettings, ProviderKind } from "../types";
 import type { SyncProvider } from "./base";
+import { isKoofrConfigured, KoofrProvider } from "./koofr";
 import { isWebDavConfigured, WebDavProvider } from "./webdav";
 
 interface ProviderEntry {
@@ -13,6 +14,11 @@ const REGISTRY: Partial<Record<ProviderKind, ProviderEntry>> = {
     create: (settings) => new WebDavProvider(settings.webdav!),
     isReady: (settings) => isWebDavConfigured(settings.webdav),
     readinessMessage: "set WebDAV server, username, and password",
+  },
+  koofr: {
+    create: (settings) => new KoofrProvider(settings.koofr!),
+    isReady: (settings) => isKoofrConfigured(settings.koofr),
+    readinessMessage: "connect your Koofr account",
   },
 };
 
