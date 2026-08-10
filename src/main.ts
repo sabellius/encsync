@@ -1,6 +1,14 @@
-import { Plugin } from "obsidian";
+import { Notice, type ObsidianProtocolData, Plugin } from "obsidian";
 import { registerCommands } from "./commands";
 import { CryptoLayer } from "./crypto/encrypt";
+import { defaultKoofrConfig, KOOFR_AUTH_URL, KOOFR_SCOPE } from "./providers/koofr";
+import { buildAuthorizeUrl, generateState } from "./providers/oauth";
+import {
+  defaultPCloudConfig,
+  PCLOUD_AUTH_URL,
+  PCLOUD_SCOPE,
+  type PCloudLocationId,
+} from "./providers/pcloud";
 import { EncSyncSettingTab } from "./settings";
 import { type BaselineStore, LocalBaselineStore } from "./sync/baseline";
 import { syncNow } from "./sync/trigger";
@@ -15,13 +23,20 @@ export default class EncSyncPlugin extends Plugin {
   private baselineStore: LocalBaselineStore | null = null;
   private baselineStoreKind: ProviderKind | null = null;
   private syncDebounceTimer: number | undefined;
+  private pendingOAuth: Map<string, ProviderKind> = new Map();
+  private settingTab: EncSyncSettingTab | null = null;
 
   async onload() {
     await this.loadSettings();
 
-    this.addSettingTab(new EncSyncSettingTab(this.app, this));
+    this.settingTab = new EncSyncSettingTab(this.app, this);
+    this.addSettingTab(this.settingTab);
     registerCommands(this);
     registerTriggers(this);
+
+    this.registerObsidianProtocolHandler("encsync-cb", (params) => {
+      void this.handleOAuthCallback(params);
+    });
   }
 
   onunload() {
@@ -29,6 +44,7 @@ export default class EncSyncPlugin extends Plugin {
     this.cryptoLayerPassword = "";
     this.baselineStore = null;
     this.baselineStoreKind = null;
+    this.pendingOAuth.clear();
     if (this.syncDebounceTimer) window.clearTimeout(this.syncDebounceTimer);
   }
 
@@ -57,6 +73,86 @@ export default class EncSyncPlugin extends Plugin {
     this.syncDebounceTimer = window.setTimeout(() => {
       void syncNow(this, true);
     }, this.settings.syncOnSaveDelayMs);
+  }
+
+  startOAuthFlow(provider: ProviderKind): void {
+    const state = generateState();
+    this.pendingOAuth.set(state, provider);
+
+    let authUrl: string;
+    let scope: string;
+    let clientId: string;
+
+    if (provider === "koofr") {
+      authUrl = KOOFR_AUTH_URL;
+      scope = KOOFR_SCOPE;
+      if (!this.settings.koofr) this.settings.koofr = defaultKoofrConfig();
+      clientId = this.settings.koofr.clientId;
+    } else {
+      authUrl = PCLOUD_AUTH_URL;
+      scope = PCLOUD_SCOPE;
+      if (!this.settings.pcloud) this.settings.pcloud = defaultPCloudConfig();
+      clientId = this.settings.pcloud.clientId;
+    }
+
+    const url = buildAuthorizeUrl({ authUrl, clientId, scope, state });
+    const opened = window.open(url);
+    if (!opened) {
+      new Notice(`EncSync: could not open browser. Copy this URL:\n${url}`, 30000);
+    }
+  }
+
+  private async handleOAuthCallback(params: ObsidianProtocolData): Promise<void> {
+    try {
+      const error = params.error;
+      if (error && error !== "true") {
+        new Notice(`EncSync: authorization denied: ${error}`, 10000);
+        return;
+      }
+
+      const state = params.state;
+      if (!state || state === "true") {
+        new Notice("EncSync: unexpected OAuth callback", 10000);
+        return;
+      }
+
+      const accessToken = params.access_token;
+      const provider = this.pendingOAuth.get(state);
+      if (!provider) {
+        new Notice("EncSync: unexpected OAuth callback", 10000);
+        return;
+      }
+
+      this.pendingOAuth.delete(state);
+
+      if (!accessToken || accessToken === "true") {
+        new Notice("EncSync: no access token received", 10000);
+        return;
+      }
+
+      if (provider === "koofr") {
+        if (!this.settings.koofr) this.settings.koofr = defaultKoofrConfig();
+        this.settings.koofr.accessToken = accessToken;
+      } else {
+        if (!this.settings.pcloud) this.settings.pcloud = defaultPCloudConfig();
+        this.settings.pcloud.accessToken = accessToken;
+        const locationId = params.locationid;
+        const hostname = params.hostname;
+        if (locationId && locationId !== "true") {
+          this.settings.pcloud.locationId = Number(locationId) as PCloudLocationId;
+        }
+        if (hostname && hostname !== "true") {
+          this.settings.pcloud.hostname = hostname;
+        }
+      }
+
+      await this.saveSettings();
+      this.settingTab?.update();
+      new Notice(`EncSync: connected to ${provider}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      new Notice(`EncSync: ${message}`, 10000);
+    }
   }
 
   async loadSettings() {
