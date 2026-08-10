@@ -2,7 +2,7 @@
   "id": "encsync",
   "name": "EncSync",
   "version": "0.1.0",
-  "minAppVersion": "1.6.6",
+  "minAppVersion": "1.13.0",
   "description": "Sync your vault to your own cloud storage with end-to-end encryption.",
   "author": "Saveliy Shiryaev",
   "authorUrl": "https://github.com/sabellius",
