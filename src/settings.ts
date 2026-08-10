@@ -77,8 +77,7 @@ export class EncSyncSettingTab extends PluginSettingTab {
           {
             name: "Connection",
             desc: this.plugin.settings.koofr?.accessToken ? "Connected" : "Not connected",
-            action: () => {},
-            disabled: true,
+            action: () => this.plugin.startOAuthFlow("koofr"),
           },
           {
             name: "Remote base folder",
@@ -112,8 +111,7 @@ export class EncSyncSettingTab extends PluginSettingTab {
           {
             name: "Connection",
             desc: this.plugin.settings.pcloud?.accessToken ? "Connected" : "Not connected",
-            action: () => {},
-            disabled: true,
+            action: () => this.plugin.startOAuthFlow("pcloud"),
           },
           {
             name: "Remote base folder",

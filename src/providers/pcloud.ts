@@ -1,4 +1,6 @@
-export const DEFAULT_PCLOUD_CLIENT_ID = "";
+export const DEFAULT_PCLOUD_CLIENT_ID = "oW6RjAx9Q6Y";
+export const PCLOUD_AUTH_URL = "https://my.pcloud.com/oauth2/authorize";
+export const PCLOUD_SCOPE = "";
 
 export const PCLOUD_LOCATION = {
   US: 1,
