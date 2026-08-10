@@ -10,7 +10,7 @@ export interface WebDavConfig {
   rootPath: string;
 }
 
-export function blankWebDavConfig(): WebDavConfig {
+export function defaultWebDavConfig(): WebDavConfig {
   return { server: "", username: "", password: "", rootPath: "/EncSync" };
 }
 
