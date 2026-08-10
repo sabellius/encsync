@@ -10,3 +10,8 @@ pre-commit:
       run: pnpm exec eslint {staged_files}
     - name: typecheck
       run: pnpm typecheck
+
+pre-push:
+  jobs:
+    - name: test
+      run: pnpm test
