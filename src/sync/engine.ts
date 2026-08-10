@@ -2,7 +2,7 @@ import { type App, TFile, type Vault } from "obsidian";
 import { CryptoLayer } from "../crypto/encrypt";
 import type { RemoteEntity, SyncProvider } from "../providers/base";
 import type { EncSyncSettings, FileBaselineEntry } from "../types";
-import { BaselineStore } from "./baseline";
+import type { BaselineStore } from "./baseline";
 import { conflictPath } from "./conflict";
 import { checkDeletionPercent, checkEmptyRemote, checkWrongPassword } from "./guards";
 
