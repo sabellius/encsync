@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import EncSyncPlugin from "./main";
-import { blankWebDavConfig, type WebDavConfig } from "./providers/webdav";
+import { defaultWebDavConfig, type WebDavConfig } from "./providers/webdav";
 
 export class EncSyncSettingTab extends PluginSettingTab {
   plugin: EncSyncPlugin;
@@ -24,7 +24,7 @@ export class EncSyncSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     const settings = this.plugin.settings;
-    const webdav: WebDavConfig = settings.webdav ?? blankWebDavConfig();
+    const webdav: WebDavConfig = settings.webdav ?? defaultWebDavConfig();
 
     new Setting(containerEl)
       .setName("WebDAV server")
