@@ -81,7 +81,7 @@ export class SyncEngine {
     const localMap = await this.enumerateLocal();
     const { remoteMap, undecryptable } = await this.enumerateRemote();
 
-    const wrongPassword = checkWrongPassword(undecryptable);
+    const wrongPassword = checkWrongPassword(undecryptable.length, remoteMap.size);
     if (!wrongPassword.ok) return { status: "aborted", reason: wrongPassword.reason };
 
     const emptyRemote = checkEmptyRemote(remoteMap.size, baseline.size);

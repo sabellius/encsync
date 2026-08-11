@@ -36,6 +36,8 @@ export async function syncNow(plugin: EncSyncPlugin, silent = false): Promise<vo
     );
     const result = await engine.run();
 
+    await plugin.saveSettings();
+
     reportSyncResult(result, silent);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

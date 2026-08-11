@@ -1,6 +1,7 @@
 import { type RequestUrlResponse, requestUrl } from "obsidian";
 import type { ProviderKind } from "../types";
 import { ProviderError, type RemoteEntity, type SyncProvider } from "./base";
+import { refreshViaProxy } from "./oauth";
 
 export const DEFAULT_KOOFR_CLIENT_ID = "4TZ3AD7XDFC52A5FPVX3E72OU6ACRIV2";
 export const KOOFR_AUTH_URL = "https://app.koofr.net/oauth2/auth";
@@ -9,6 +10,7 @@ export const KOOFR_SCOPE = "public";
 export interface KoofrConfig {
   clientId: string;
   accessToken: string;
+  refreshToken: string;
   hostname: string;
   rootPath: string;
 }
@@ -17,6 +19,7 @@ export function defaultKoofrConfig(): KoofrConfig {
   return {
     clientId: DEFAULT_KOOFR_CLIENT_ID,
     accessToken: "",
+    refreshToken: "",
     hostname: "https://app.koofr.net",
     rootPath: "/EncSync",
   };
@@ -86,6 +89,36 @@ export class KoofrProvider implements SyncProvider {
     return this.mountIdCache;
   }
 
+  private async doRequest(
+    url: string,
+    options: {
+      method: string;
+      headers?: Record<string, string>;
+      body?: ArrayBuffer | string;
+    },
+  ): Promise<RequestUrlResponse> {
+    return requestUrl({
+      url,
+      method: options.method,
+      headers: {
+        Authorization: `Bearer ${this.config.accessToken}`,
+        ...(options.headers ?? {}),
+      },
+      body: options.body,
+    });
+  }
+
+  private mapRequestError(error: unknown): ProviderError {
+    const status = (error as { status?: number }).status ?? 0;
+    if (status === 404) return new ProviderError("not-found", `404`, status);
+    if (status === 401 || status === 403) {
+      return new ProviderError("auth", "access token expired, click Connect again", status);
+    }
+    if (status >= 500) return new ProviderError("server", `${status}`, status);
+    if (status > 0) return new ProviderError("unknown", `${status}`, status);
+    return new ProviderError("network", (error as Error).message ?? String(error));
+  }
+
   private async request(
     url: string,
     options: {
@@ -95,22 +128,26 @@ export class KoofrProvider implements SyncProvider {
     },
   ): Promise<RequestUrlResponse> {
     try {
-      return await requestUrl({
-        url,
-        method: options.method,
-        headers: {
-          Authorization: `Bearer ${this.config.accessToken}`,
-          ...(options.headers ?? {}),
-        },
-        body: options.body,
-      });
+      return await this.doRequest(url, options);
     } catch (error) {
       const status = (error as { status?: number }).status ?? 0;
-      if (status === 404) throw new ProviderError("not-found", `404`, status);
-      if (status === 401 || status === 403) throw new ProviderError("auth", `${status}`, status);
-      if (status >= 500) throw new ProviderError("server", `${status}`, status);
-      if (status > 0) throw new ProviderError("unknown", `${status}`, status);
-      throw new ProviderError("network", (error as Error).message ?? String(error));
+
+      if ((status === 401 || status === 403) && this.config.refreshToken) {
+        try {
+          const tokens = await refreshViaProxy(this.config.refreshToken);
+          this.config.accessToken = tokens.accessToken;
+          this.config.refreshToken = tokens.refreshToken;
+        } catch {
+          throw new ProviderError("auth", "access token expired, click Connect again");
+        }
+        try {
+          return await this.doRequest(url, options);
+        } catch (retryError) {
+          throw this.mapRequestError(retryError);
+        }
+      }
+
+      throw this.mapRequestError(error);
     }
   }
 

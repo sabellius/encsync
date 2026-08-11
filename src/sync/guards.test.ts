@@ -60,24 +60,34 @@ describe("checkDeletionPercent", () => {
 });
 
 describe("checkWrongPassword", () => {
-  it("passes when no undecryptable paths", () => {
-    const result = checkWrongPassword([]);
+  it("passes when no undecryptable files", () => {
+    const result = checkWrongPassword(0, 10);
     expect(result.ok).toBe(true);
   });
 
-  it("aborts when undecryptable paths exist", () => {
-    const result = checkWrongPassword(["encrypted-abc", "encrypted-def"]);
+  it("passes when minority of files are undecryptable", () => {
+    const result = checkWrongPassword(1, 10);
+    expect(result.ok).toBe(true);
+  });
+
+  it("aborts when majority of files are undecryptable", () => {
+    const result = checkWrongPassword(6, 10);
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.reason).toContain("2 remote entries");
+      expect(result.reason).toContain("6 of 10 remote entries");
     }
   });
 
-  it("uses singular form for one undecryptable path", () => {
-    const result = checkWrongPassword(["encrypted-abc"]);
+  it("aborts when all files are undecryptable", () => {
+    const result = checkWrongPassword(3, 3);
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.reason).toContain("1 remote entry");
+      expect(result.reason).toContain("3 of 3 remote entries");
     }
+  });
+
+  it("passes when remote is empty", () => {
+    const result = checkWrongPassword(0, 0);
+    expect(result.ok).toBe(true);
   });
 });

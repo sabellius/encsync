@@ -7,7 +7,7 @@ import {
   KOOFR_AUTH_URL,
   KOOFR_SCOPE,
 } from "./providers/koofr";
-import { buildAuthorizeUrl, generateState } from "./providers/oauth";
+import { buildAuthorizeUrl, generateState, OAUTH_REDIRECT_URI, PROXY_URL } from "./providers/oauth";
 import {
   DEFAULT_PCLOUD_CLIENT_ID,
   defaultPCloudConfig,
@@ -74,6 +74,16 @@ export default class EncSyncPlugin extends Plugin {
     return this.baselineStore;
   }
 
+  private ensureKoofr() {
+    if (!this.settings.koofr) this.settings.koofr = defaultKoofrConfig();
+    return this.settings.koofr;
+  }
+
+  private ensurePCloud() {
+    if (!this.settings.pcloud) this.settings.pcloud = defaultPCloudConfig();
+    return this.settings.pcloud;
+  }
+
   scheduleSyncOnSave(): void {
     if (this.syncDebounceTimer) window.clearTimeout(this.syncDebounceTimer);
     this.syncDebounceTimer = window.setTimeout(() => {
@@ -88,20 +98,24 @@ export default class EncSyncPlugin extends Plugin {
     let authUrl: string;
     let scope: string;
     let clientId: string;
+    let responseType: "token" | "code";
+    let redirectUri: string;
 
     if (provider === "koofr") {
       authUrl = KOOFR_AUTH_URL;
       scope = KOOFR_SCOPE;
-      if (!this.settings.koofr) this.settings.koofr = defaultKoofrConfig();
-      clientId = this.settings.koofr.clientId || DEFAULT_KOOFR_CLIENT_ID;
+      clientId = this.ensureKoofr().clientId || DEFAULT_KOOFR_CLIENT_ID;
+      responseType = "code";
+      redirectUri = `${PROXY_URL}/callback`;
     } else {
       authUrl = PCLOUD_AUTH_URL;
       scope = PCLOUD_SCOPE;
-      if (!this.settings.pcloud) this.settings.pcloud = defaultPCloudConfig();
-      clientId = this.settings.pcloud.clientId || DEFAULT_PCLOUD_CLIENT_ID;
+      clientId = this.ensurePCloud().clientId || DEFAULT_PCLOUD_CLIENT_ID;
+      responseType = "token";
+      redirectUri = OAUTH_REDIRECT_URI;
     }
 
-    const url = buildAuthorizeUrl({ authUrl, clientId, scope, state });
+    const url = buildAuthorizeUrl({ authUrl, clientId, scope, state, responseType, redirectUri });
     window.open(url);
   }
 
@@ -119,7 +133,6 @@ export default class EncSyncPlugin extends Plugin {
         return;
       }
 
-      const accessToken = params.access_token;
       const provider = this.pendingOAuth.get(state);
       if (!provider) {
         new Notice("EncSync: unexpected OAuth callback", 10000);
@@ -128,24 +141,33 @@ export default class EncSyncPlugin extends Plugin {
 
       this.pendingOAuth.delete(state);
 
+      const accessToken = params.access_token;
+      const refreshToken = params.refresh_token;
+
       if (!accessToken || accessToken === "true") {
         new Notice("EncSync: no access token received", 10000);
         return;
       }
 
       if (provider === "koofr") {
-        if (!this.settings.koofr) this.settings.koofr = defaultKoofrConfig();
-        this.settings.koofr.accessToken = accessToken;
+        const koofr = this.ensureKoofr();
+        koofr.accessToken = accessToken;
+        if (refreshToken && refreshToken !== "true") {
+          koofr.refreshToken = refreshToken;
+        } else {
+          new Notice("EncSync: no refresh token received from proxy", 10000);
+          return;
+        }
       } else {
-        if (!this.settings.pcloud) this.settings.pcloud = defaultPCloudConfig();
-        this.settings.pcloud.accessToken = accessToken;
+        const pcloud = this.ensurePCloud();
+        pcloud.accessToken = accessToken;
         const locationId = params.locationid;
         const hostname = params.hostname;
         if (locationId && locationId !== "true") {
-          this.settings.pcloud.locationId = Number(locationId) as PCloudLocationId;
+          pcloud.locationId = Number(locationId) as PCloudLocationId;
         }
         if (hostname && hostname !== "true") {
-          this.settings.pcloud.hostname = hostname;
+          pcloud.hostname = hostname;
         }
       }
 
