@@ -28,12 +28,12 @@ export function checkDeletionPercent(
   return { ok: true };
 }
 
-export function checkWrongPassword(undecryptablePaths: string[]): GuardResult {
-  if (undecryptablePaths.length > 0) {
-    const entryWord = undecryptablePaths.length === 1 ? "entry" : "entries";
+export function checkWrongPassword(undecryptableCount: number, remoteCount: number): GuardResult {
+  if (remoteCount > 0 && undecryptableCount / remoteCount >= 0.5) {
+    const entryWord = undecryptableCount === 1 ? "entry" : "entries";
     return {
       ok: false,
-      reason: `${undecryptablePaths.length} remote ${entryWord} could not be decrypted. Check your encryption password. Sync aborted.`,
+      reason: `${undecryptableCount} of ${remoteCount} remote ${entryWord} could not be decrypted. Check your encryption password. Sync aborted.`,
     };
   }
   return { ok: true };
