@@ -8,6 +8,12 @@ import { checkDeletionPercent, checkEmptyRemote, checkWrongPassword } from "./gu
 
 const MTIME_TOLERANCE_MS = 2000;
 
+let lastDebugPlan: Array<{ path: string; action: string }> | null = null;
+
+export function getLastDebugPlan() {
+  return lastDebugPlan;
+}
+
 export type SyncResult =
   | {
       status: "ok";
@@ -88,6 +94,10 @@ export class SyncEngine {
     if (!emptyRemote.ok) return { status: "aborted", reason: emptyRemote.reason };
 
     const plan = await this.buildPlan(localMap, remoteMap, baseline, firstSync);
+
+    if (this.settings.logLevel === "debug") {
+      lastDebugPlan = Array.from(plan.entries()).map(([path, action]) => ({ path, action }));
+    }
 
     const plannedDeletions = countDeletions(plan);
     const deletionGuard = checkDeletionPercent(

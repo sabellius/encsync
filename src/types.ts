@@ -3,6 +3,7 @@ import type { PCloudConfig } from "./providers/pcloud";
 import type { WebDavConfig } from "./providers/webdav";
 
 export type ProviderKind = "pcloud" | "webdav" | "koofr";
+export type LogLevel = "info" | "debug";
 
 export interface EncSyncSettings {
   provider: ProviderKind;
@@ -14,6 +15,7 @@ export interface EncSyncSettings {
   syncOnSaveDelayMs: number;
   deletionGuardPct: number;
   ignorePaths: string[];
+  logLevel: LogLevel;
 }
 
 const DEFAULT_AUTO_SYNC_INTERVAL_MS = 5 * 60 * 1000;
@@ -30,6 +32,7 @@ export const DEFAULT_SETTINGS: EncSyncSettings = {
   syncOnSaveDelayMs: DEFAULT_SYNC_ON_SAVE_DELAY_MS,
   deletionGuardPct: DEFAULT_DELETION_GUARD_PERCENT,
   ignorePaths: [],
+  logLevel: "info",
 };
 
 export interface FileBaselineEntry {
