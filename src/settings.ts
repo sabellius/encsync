@@ -1,8 +1,10 @@
-import { App, PluginSettingTab, type Setting } from "obsidian";
+import localforage from "localforage";
+import { App, Notice, PluginSettingTab, type Setting } from "obsidian";
 import EncSyncPlugin from "./main";
 import { defaultKoofrConfig, type KoofrConfig } from "./providers/koofr";
 import { defaultPCloudConfig, PCLOUD_LOCATION, type PCloudConfig } from "./providers/pcloud";
 import { defaultWebDavConfig, type WebDavConfig } from "./providers/webdav";
+import { getLastDebugPlan } from "./sync/engine";
 
 export class EncSyncSettingTab extends PluginSettingTab {
   plugin: EncSyncPlugin;
@@ -192,6 +194,66 @@ export class EncSyncSettingTab extends PluginSettingTab {
           },
         ],
       },
+
+      {
+        type: "group" as const,
+        heading: "Developer",
+        items: [
+          {
+            name: "Log level",
+            desc: "Debug mode logs the full sync plan to the console (Ctrl+Shift+I).",
+            control: {
+              type: "dropdown" as const,
+              key: "logLevel",
+              options: { info: "Normal", debug: "Debug" },
+            },
+          },
+          {
+            name: "Reset sync state",
+            desc: "Clears the sync baseline for the current provider. Next sync reconciles all files from scratch.",
+            action: () => {
+              void (async () => {
+                const provider = this.plugin.settings.provider;
+                const store = localforage.createInstance({
+                  name: "encsync",
+                  storeName: provider,
+                });
+                await store.clear();
+                new Notice(`EncSync: sync state cleared for ${provider}`);
+              })();
+            },
+          },
+          {
+            name: "Show diagnostic info",
+            desc: "Displays current provider, root path, and tracked file count.",
+            action: () => {
+              void (async () => {
+                const settings = this.plugin.settings;
+                const provider = settings.provider;
+                const rootPath =
+                  provider === "webdav"
+                    ? settings.webdav?.rootPath
+                    : provider === "koofr"
+                      ? settings.koofr?.rootPath
+                      : (settings.pcloud?.rootPath ?? "?");
+                const store = localforage.createInstance({
+                  name: "encsync",
+                  storeName: provider,
+                });
+                const baselineSize = await store.length();
+                const debugPlan = getLastDebugPlan();
+                const planLines = debugPlan
+                  ? debugPlan.map((p) => `  ${p.action}: ${p.path}`).join("\n")
+                  : "(no sync plan recorded — run a sync with debug mode on)";
+                new Notice(
+                  `Provider: ${provider}\nRoot: ${rootPath}\nBaseline files: ${baselineSize}\n\nLast sync plan:\n${planLines}`,
+                  30000,
+                );
+              })();
+            },
+          },
+        ],
+      },
     ];
   }
 
@@ -204,6 +266,7 @@ export class EncSyncSettingTab extends PluginSettingTab {
     if (key === "deletionGuardPct") return settings.deletionGuardPct;
     if (key === "encryptionPassword") return settings.encryptionPassword;
     if (key === "provider") return settings.provider;
+    if (key === "logLevel") return settings.logLevel;
 
     if (key === "pcloud.locationId") {
       return String(settings.pcloud?.locationId ?? PCLOUD_LOCATION.US);
