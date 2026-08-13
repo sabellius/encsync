@@ -214,12 +214,19 @@ export class EncSyncSettingTab extends PluginSettingTab {
             action: () => {
               void (async () => {
                 const provider = this.plugin.settings.provider;
+                const rootPath =
+                  provider === "webdav"
+                    ? (this.plugin.settings.webdav?.rootPath ?? "")
+                    : provider === "koofr"
+                      ? (this.plugin.settings.koofr?.rootPath ?? "")
+                      : (this.plugin.settings.pcloud?.rootPath ?? "");
+                const storeKey = `${provider}:${rootPath}`;
                 const store = localforage.createInstance({
                   name: "encsync",
-                  storeName: provider,
+                  storeName: storeKey,
                 });
                 await store.clear();
-                new Notice(`EncSync: sync state cleared for ${provider}`);
+                new Notice(`EncSync: sync state cleared for ${provider} at ${rootPath}`);
               })();
             },
           },
@@ -236,9 +243,10 @@ export class EncSyncSettingTab extends PluginSettingTab {
                     : provider === "koofr"
                       ? settings.koofr?.rootPath
                       : (settings.pcloud?.rootPath ?? "?");
+                const storeKey = `${provider}:${rootPath ?? ""}`;
                 const store = localforage.createInstance({
                   name: "encsync",
-                  storeName: provider,
+                  storeName: storeKey,
                 });
                 const baselineSize = await store.length();
                 const debugPlan = getLastDebugPlan();

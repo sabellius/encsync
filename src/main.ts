@@ -27,7 +27,7 @@ export default class EncSyncPlugin extends Plugin {
   private cryptoLayer: CryptoLayer | null = null;
   private cryptoLayerPassword = "";
   private baselineStore: LocalBaselineStore | null = null;
-  private baselineStoreKind: ProviderKind | null = null;
+  private baselineStoreKind: string | null = null;
   private syncDebounceTimer: number | undefined;
   private pendingOAuth: Map<string, ProviderKind> = new Map();
   private settingTab: EncSyncSettingTab | null = null;
@@ -65,13 +65,24 @@ export default class EncSyncPlugin extends Plugin {
   }
 
   getOrCreateBaselineStore(): BaselineStore {
-    const kind = this.settings.provider;
-    if (this.baselineStore && this.baselineStoreKind === kind) {
+    const storeKey = this.getBaselineStoreKey();
+    if (this.baselineStore && this.baselineStoreKind === storeKey) {
       return this.baselineStore;
     }
-    this.baselineStore = LocalBaselineStore.create(kind);
-    this.baselineStoreKind = kind;
+    this.baselineStore = LocalBaselineStore.create(storeKey);
+    this.baselineStoreKind = storeKey;
     return this.baselineStore;
+  }
+
+  private getBaselineStoreKey(): string {
+    const provider = this.settings.provider;
+    const rootPath =
+      provider === "webdav"
+        ? (this.settings.webdav?.rootPath ?? "")
+        : provider === "koofr"
+          ? (this.settings.koofr?.rootPath ?? "")
+          : (this.settings.pcloud?.rootPath ?? "");
+    return `${provider}:${rootPath}`;
   }
 
   private ensureKoofr() {

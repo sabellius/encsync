@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import type { BaselineEntry, ProviderKind } from "../types";
+import type { BaselineEntry } from "../types";
 
 const DATABASE_NAME = "encsync";
 
@@ -13,10 +13,10 @@ export interface BaselineStore {
 export class LocalBaselineStore implements BaselineStore {
   private constructor(private readonly store: LocalForage) {}
 
-  static create(kind: ProviderKind): LocalBaselineStore {
+  static create(storeKey: string): LocalBaselineStore {
     const store = localforage.createInstance({
       name: DATABASE_NAME,
-      storeName: kind,
+      storeName: storeKey,
     });
     return new LocalBaselineStore(store);
   }
